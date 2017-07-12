@@ -135,7 +135,7 @@ function getRandomInt(min, max) {
 // returns true/false
 function initDataIsCorrupt() {
   // check length
-  if (initData.length != 828) {
+  if (initData.length < 828 || initData.length > 829) {
     console.log("I throught this will never be triggered");
     console.log("initData.length: " + initData.length);
     console.log("initData ");
@@ -144,7 +144,7 @@ function initDataIsCorrupt() {
   }
   // Each cell is an array, check the length of each cell
   for (var i = 0; i < initData.length; i++) {
-    if (initData[i].length != 32) {
+    if (initData[i].length != 32 && initData[i].length != 1) {
       console.log("something wrong inside at row " + i + "in initData");
       return 1;
     } // end if

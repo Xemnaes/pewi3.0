@@ -23,11 +23,14 @@ function propogateBoard(board) {
 
   //loop through initData array and assign values to Tiles
   console.log("initData.length " + initData.length);
-  for (var i = 0; i < initData.length; i++) {
+  for (var i = 0; i < 828; i++) {
     var tile = new Tile(initData[i], board);
     board.map.push(tile);
   } //end for : each entry in initData
 
+  if(initData.length == 829) {
+    board.calculatedToYear = initData[initData.length-1];
+  }
   //set up board1.watershedArea parameter for some tile level calculations
   board.init();
 } //end propogateBoard()

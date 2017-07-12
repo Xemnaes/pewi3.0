@@ -2816,6 +2816,7 @@ function writeFileToDownloadString(mapPlayerNumber) {
 
     } //end for
 
+    string += '\r\n' + boardData[currentBoard].calculatedToYear;
 
     // finish processing, set boardData as undefined ****** commented for now to avoid error after the file is downloaded
    // cleanCurrentBoardData();

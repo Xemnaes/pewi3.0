@@ -254,6 +254,7 @@ function toggleChildElements(idOfHeader) {
 //this function adds the content to the right pane, namely
 //  the image/video in square1, the text frame in square2, and the title
 function arrangeContent(idOfElement) {
+
   // record for click tracking system
   if( parent.getTracking() ) {
     console.log("tracking arrangeContent("+idOfElement+")");
@@ -299,6 +300,7 @@ function arrangeContent(idOfElement) {
   if (document.getElementById(idOfElement).className == 'groupElement') {
     document.getElementById(idOfElement).className = 'selectedGroupElement';
   }
+
 } //end function arrangeContent()
 
 //this function adjusts the sizes of parent containers that have a child container opened or closed

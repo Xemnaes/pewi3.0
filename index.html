@@ -166,6 +166,7 @@
           promptUserSim();
         })
       });
+
     </script>
      <!-- style="display: inline; visibility: hidden;-->
     <div id = "flyover" class = "fly" > </div>
@@ -1149,7 +1150,7 @@
     $(window).bind("beforeunload", function(event) {
       if (page.style.visibility == 'visible') {
         // on the main page, ask the user to save changes
-        showUploadDownload();
+        //showUploadDownload();
         return "Are you sure to leave? Make sure if you saved changes.";
       } else {
         // not on the main page, exit the app directly

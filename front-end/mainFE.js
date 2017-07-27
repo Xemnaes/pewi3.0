@@ -130,6 +130,11 @@ function initializeCamera() {
     //Event listners for changing camera views
     document.addEventListener('keyup', CamView);
     animate(); 
+
+    //Event listner for scrolling using the wheel and scroll bar(Used exclusively by click tracking...for now) ***ADD TIMER TO REDUCE TRACKING???
+    window.frames[0].onscroll = onWheelViewCredits;
+    window.frames[3].onscroll = onWheelViewResults;
+
 } //end initializeCamera
 
 
@@ -139,7 +144,44 @@ function CamView(e) {
     var Uma = String.fromCharCode(tempKeys[11][0]);
    document.getElementById("flyover").innerHTML = "FlyOver Mode, Hit " + Uma +  " to Exit";
   if (e.keyCode == tempKeys[11][0] || e.keyCode == tempKeys[11][1]) {
+    if(curTracking) {
+      pushClick(0,getStamp(),85,0,null);
+    }
     toggleCameraView();
+  }
+}
+
+//Event function that is called when a user is scrolling in the credits page
+function onWheelViewCredits(e) {
+  if(curTracking && scrollGap) {
+    pushClick(0,getStamp(),92,0,window.frames[0].pageYOffset);
+  }
+}
+
+//Event function that is called when a user is scrolling in results
+function onWheelViewResults(e) {
+  if(curTracking && scrollGap) {
+    pushClick(0,getStamp(),94,0,window.frames[3].pageYOffset);
+  }
+}
+
+//Event function that is called when a user is scrolling in the index **FIX
+function onWheelViewIndex(e) {
+  if(curTracking && scrollGap) {
+    pushClick(0,getStamp(),93,0,window.frames[2].frames[0].contentDocument.pageYOffset);
+  }
+  console.log(window.frames[2].frames[0].pageYOffset);
+}
+
+//Handles the time difference in scrolling events while click-tracking
+function scrollGap() {
+  //Change this value if needed
+  var goodGap = 500;
+  var timeGap = (clickTrackings[clickTrackings.length-1].timeStamp) - (clickTrackings[clickTrackings.length-2].timeStamp);
+  if(goodGap>timeGap) {
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -197,10 +239,14 @@ function changeCam2(){
 
 //Camera movements Controls for Camera2 ie second view
 function animate(){
+  hotkeys = giveHotkeys();
 	requestAnimationFrame(animate);
-	
+  
 	//Keyboard movement inputs
-    if(keyboard[87]){ // W key Forward Movements
+    if(keyboard[hotkeys[8][0]] || keyboard[hotkeys[8][1]]){ // W key Forward Movements
+      if(curTracking) {
+        pushClick(0,getStamp(),86,0,null);
+      }
         //Movements Restrictions and setting bounds
         //The four if statements check if the four side of the pewi shed bounds for the camera pass a specific point set 
         //and if it does it resets it to that specific position set.
@@ -219,7 +265,10 @@ function animate(){
         console.log(camera2.position);
     }
 
-	if(keyboard[83]){ // S key Back Words movements
+	if(keyboard[hotkeys[9][0]] || keyboard[hotkeys[9][1]]){ // S key Back Words movements
+      if(curTracking) {
+        pushClick(0,getStamp(),87,0,null);
+      }
         //Movements Restrictions and setting bounds
         //The four if statements check if the four side of the pewi shed bounds for the camera pass a specific point set 
         //and if it does it resets it to that specific position set.
@@ -238,7 +287,10 @@ function animate(){
         console.log(camera2.position);
 	}
 	
-    if(keyboard[65]){ // A key Left Side Movement
+    if(keyboard[hotkeys[7][0]] || keyboard[hotkeys[7][1]]){ // A key Left Side Movement
+      if(curTracking) {
+        pushClick(0,getStamp(),89,0,null);
+      }
         //Movements Restrictions and setting bounds
         //The four if statements check if the four side of the pewi shed bounds for the camera pass a specific point set 
         //and if it does it resets it to that specific position set.
@@ -257,7 +309,10 @@ function animate(){
         console.log(camera2.position);
 	}
 	
-    if(keyboard[68]){ // D key Right side Movements
+    if(keyboard[hotkeys[6][0]] || keyboard[hotkeys[6][1]]){ // D key Right side Movements
+      if(curTracking) {
+        pushClick(0,getStamp(),88,0,null);
+      }
         //Movements Restrictions and setting bounds
         //The four if statements check if the four side of the pewi shed bounds for the camera pass a specific point set 
         //and if it does it resets it to that specific position set.
@@ -288,8 +343,11 @@ function animate(){
 	
     //Specific Zooming
     if(keyboard[38]){ // Up arrow key
+        if(curTracking) {
+          pushClick(0,getStamp(),95,0,null);
+        }
         //Checking if toggle is on and checking if it passes a specific bounds and if it does
-        // It sets it to specific height and restrict it to that heights else if moves normally 
+        // It sets it to specific height and restrict it to that heights else if moves normally
         if (tToggle){
         if(camera2.position.y <= 27 )
             camera2.position.y = 27;

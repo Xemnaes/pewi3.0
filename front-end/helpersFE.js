@@ -105,6 +105,34 @@ function onResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 } //end onResize
 
+//For creating a manual scrolling event (Used in click tracking for PEWI map zooming [vertical position only])
+function customCameraView(position) {
+  var customScroll = new CustomEvent("MozMousePixelScroll1", {detail: -1*parseInt(position)});
+  window.dispatchEvent(customScroll);
+}
+
+//For creating a manual directional event (Used in click tracking for PEWI map navigation)
+function customDirectionalInput(input, keycode) {
+  var customInput = new KeyboardEvent("keydown", {code: input, keyCode: keycode});
+  window.dispatchEvent(customInput);
+}
+
+//For creating a manual mouse click-and-drage events (Used in click tracking for PEWI map navigation)
+function customMouseInput(buttonInput,drag) {
+  var inputX = parseFloat(buttonInput[0]);
+  var inputY = parseFloat(buttonInput[1]);
+  var sX = parseFloat(buttonInput[2]);
+  var sY = parseFloat(buttonInput[3]);
+  var mX = parseFloat(buttonInput[4]);
+  var mY = parseFloat(buttonInput[5]);
+  if(!drag) {
+    var customMouse = new MouseEvent("mousedown", {button: 2, buttons: 2, clientX: inputX, clientY: inputY, layerX: 9, layerY: inputY, screenX: sX, screenY: sY, movementX: mX, movementY: mY});
+  } else {
+    var customMouse = new MouseEvent("mousemove", {button: 0, buttons: 2, clientX: inputX, clientY: inputY, layerX: inputX, layerY: inputY, screenX: sX, screenY: sY, movementX: mX, movementY: mY});
+  }
+  window.dispatchEvent(customMouse);
+}
+
 //displayBoard initializes a board with graphics using addTile()
 //only needs to be called when an entirely new board is loaded, since each
 //tile is created from scratch
@@ -678,8 +706,7 @@ function resetYearDisplay() {
 
 //onDocumentMouseMove follows the cursor and highlights corresponding tiles
 function onDocumentMouseMove(event) {
-
-  event.preventDefault();
+if(!isSimRunning() || isSimRunning && !event.isTrusted) {
 
   mouse.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 
@@ -758,12 +785,14 @@ function onDocumentMouseMove(event) {
     }
 
   }
+}
 } //end onDocumentMouseMove
 
 //onDocumentDoubleClick changes landType to the painted (selected) landType on double-click
 //and will change map to a monoculture if shift is held down
 function onDocumentMouseDown(event) {
-  if (!runningSim) {
+if(!isSimRunning() || isSimRunning && !event.isTrusted) {
+    
     //if the user's mouse is over one of the frames
     // such as the left console or results button
     if (clearToChangeLandType) {
@@ -867,7 +896,7 @@ function onDocumentMouseDown(event) {
 
 //onDocumentMouseUp listens for the release of the click event
 function onDocumentMouseUp(event) {
-
+if(!isSimRunning() || isSimRunning && !event.isTrusted) {
   //Turn off click and drag functionality
   clickAndDrag = false;
 
@@ -886,10 +915,12 @@ function onDocumentMouseUp(event) {
       }
     } //end for
   }
+}
 } //end onDocumentMouseUp
 
 //onDocumentKeyDown, listener with keyboard bindings
 function onDocumentKeyDown(event) {
+if(!isSimRunning() || isSimRunning && !event.isTrusted) {
   //switch structure on key code (http://keycode.info)
   switch (event.keyCode) {
     //case shift - update isShiftDown
@@ -921,6 +952,9 @@ function onDocumentKeyDown(event) {
       break;
       //case e - reset camera position
     case hotkeyArr[0][0]: case hotkeyArr[0][1]:
+      if(curTracking) {
+        pushClick(0,getStamp(),90,0,null);
+      }
       //update scope across 10 turns,
       // it seeems that controls.js scope doesn't bring us all the way back
       // with just a controls value of 1
@@ -937,10 +971,10 @@ function onDocumentKeyDown(event) {
         controls1.value = 1;
       }, 100);
     }else{
-        camera2.position.x = 70;
-        camera2.position.y = 25;
-        camera2.position.z = 244;
-        camera2.rotation.y = 0;
+      camera2.position.x = 70;
+      camera2.position.y = 25;
+      camera2.position.z = 244;
+      camera2.rotation.y = 0;
     }
       break;
 
@@ -1046,6 +1080,7 @@ function onDocumentKeyDown(event) {
       }
       //no default handler
   } //end switch
+}
 } //end onDocumentKeyDown
 
 //onDocumentKeyUp, binding to keyboard keyUp event
@@ -4033,7 +4068,7 @@ function exportTracking() {
     clickTrackings[0].timeGap = clickTrackings[0].timeStamp;
     finishProperties();
     var A = [
-      ['ClickID', 'Time Stamp (Milliseconds)', 'Click Type', 'Time Gap (Milliseconds)', 'Description of click', 'TileID/Precip', startTime, endTime, startTime.getTime(), endTime.getTime()]
+      ['ClickID', 'Time Stamp (Milliseconds)', 'Click Type', 'Time Gap (Milliseconds)', 'Description of click', 'Extra Data', startTime, endTime, startTime.getTime(), endTime.getTime()]
     ];
     for (var j = 0; j < clickTrackings.length; j++) {
       A.push([clickTrackings[j].clickID, clickTrackings[j].timeStamp, clickTrackings[j].functionType, clickTrackings[j].timeGap, clickTrackings[j].getAction(), clickTrackings[j].tileID])
@@ -4111,9 +4146,10 @@ function runSimulation() {
     var tempStamp = tempArr[1];
     var tempType = tempArr[2];
     var tempGap = tempArr[3];
-    if (tempType == 55 || tempType == 34 || tempType == 35 || tempType == 36 || tempType == 37 || tempType == 80 || tempType == 81 || tempType == 82) {
+    //*** CHANGE LATER FOR EASIER USE
+    if (tempType == 55 || tempType == 34 || tempType == 35 || tempType == 36 || tempType == 37 || tempType == 80 || tempType == 81 || tempType == 82 || tempType == 91 || tempType == 91 || tempType == 92 || tempType == 93 || tempType == 94) {
       var tempTile = tempArr[5];
-    } if (tempType == 56) {
+    } if (tempType == 56 || tempType == 99 || tempType == 100) {
       var tempTile = [];
       for(var j = 5; j < tempArr.length; j++) {
         tempTile.push(tempArr[j]);
@@ -4233,7 +4269,6 @@ function updateSim(newTime) {
   sliderTimer = setInterval(updateTime, 1);
   for (var j = 0; j < mainTimer.length; j++) {
     //Don't repeat previous steps if you didn't go back in time
-    console.log(backToTheFuture);
     if(backToTheFuture || !backToTheFuture && previousTime < parseInt(clickTrackings[j].timeStamp)) {
       mainTimer[j] = setTimeout(performAction, parseInt(clickTrackings[j].timeStamp) - elapsedTime, j);
     }
@@ -4281,6 +4316,9 @@ function resetPresets() {
   }
   //Resets the undoArr
   resetUndo();
+  //Resets camera
+  if(document.getElementById('flyover').style.display == "block") {
+    toggleCameraView(); }
 } //end resetPresets()
 
 //Sets the simUpload boolean value
